@@ -8,7 +8,7 @@ const settings = {
 
 function start() {
   console.log("Start program");
-
+  setBaseColor(getRandomColor());
   // start with a random color
 
   registerButtons();
@@ -21,8 +21,16 @@ function registerButtons() {
   document.querySelector("#basecolor").addEventListener("input", changeBaseColor);
 
   // harmonies
+  document.querySelector("#harmonies").addEventListener("click", changeHarmony);
 }
 // change harmony
+function changeHarmony(event) {
+  let harmony = event.target.value;
+  /* console.log("changeHarmony", event.target.value); */
+  if (harmony) {
+    setHarmony(event.target.value);
+  }
+}
 
 function changeBaseColor(event) {
   const color = event.target.value;
@@ -30,6 +38,13 @@ function changeBaseColor(event) {
   setBaseColor(color);
 }
 // createFourCopies
+function createFourCopies(original) {
+  const copies = [];
+  for (let i = 0; i < 4; i++) {
+    copies.push(Object.assign({}, original));
+  }
+  return copies;
+}
 
 // clampColors
 
@@ -52,6 +67,14 @@ function changeBaseColor(event) {
 // shades
 
 // setHarmony
+function setHarmony(harmony) {
+  console.log("setHarmony", harmony);
+  switch (harmony) {
+    case "analog":
+      break;
+  }
+  calculateHarmony();
+}
 
 function setBaseColor(color) {
   document.querySelector("#basecolor").value = color;
@@ -60,10 +83,28 @@ function setBaseColor(color) {
 
   settings.selectedColor = color;
 
-  //calculateHarmony();
+  calculateHarmony();
 }
 
 // calculateHarmony
+function calculateHarmony() {
+  const indexes = [1, 2, 4, 5];
+  const base = convertRGBToHSL(convertHexToRGB(settings.selectedColor));
+  console.log("settings.selectedColor", settings.selectedColor);
+  console.log("CalculateHarmony base", base);
+  const colors = createFourCopies(base);
+  console.log("colors", colors);
+  ////analogus harmony
+  colors[0].h = base.h - 30;
+  colors[1].h = base.h - 60;
+  colors[2].h = base.h + 30;
+  colors[3].h = base.h + 60;
+  colors.forEach((color, i) => {
+    const rgb = convertHSLtoRGB(color);
+    const hex = convertRGBtoHEX(rgb);
+    showColor(indexes[i], hex);
+  });
+}
 
 function showColor(index, color) {
   const colorinfo = document.querySelector("#color" + index);
@@ -91,11 +132,17 @@ function showRGB(index, rgb) {
 
 function showHSL(index, hsl) {
   const colorinfo = document.querySelector("#color" + index);
-  colorinfo.querySelector("[data-info=hsl]").textContent = `hsl(${Math.floor(hsl.h)}, ${Math.floor(hsl.s)}%, ${Math.floor(hsl.l)}%)`;
+  colorinfo.querySelector("[data-info=hsl]").textContent = `hsl(${Math.floor(hsl.h)}, ${Math.floor(
+    hsl.s
+  )}%, ${Math.floor(hsl.l)}%)`;
 }
 
 function getRandomColor() {
-  return convertRGBtoHEX({ r: Math.floor(Math.random() * 255), g: Math.floor(Math.random() * 255), b: Math.floor(Math.random() * 255) });
+  return convertRGBtoHEX({
+    r: Math.floor(Math.random() * 255),
+    g: Math.floor(Math.random() * 255),
+    b: Math.floor(Math.random() * 255),
+  });
 }
 
 function convertHexToRGB(color) {
